@@ -18,38 +18,40 @@ function deleteFile(name) {
     }
 }
 
-async function videoEdit(file) {
+async function videoEdit(file): Promise<any> {
     return (await new Promise((resolve, reject) => {
         const inStream = file.tempFilePath
+        const filename = `${file.tempFilePath}-${file.name}`
         ffmpeg({ source: inStream })
             .withNoAudio()
             .setDuration(20)
             .withSize('640x480')
             .on('end', async () => {
                 console.log('Done')
-                const result = await uploadFile(file.name)
+                const result = await uploadFile(filename)
                 console.log(result)
                 return resolve(result);
             })
             .on('err', (err) => {
                 return reject(err)
             })
-            .saveToFile(file.name)
+            .saveToFile(filename)
 
     }))
 }
 
-async function captureImage(file) {
+async function captureImage(file): Promise<any> {
     return (await new Promise((resolve, reject) => {
         const inStream = file.tempFilePath
-        const screenshot = `screenshot${file.name}.png`
+        const filename = `${file.tempFilePath}-${file.name}`
+        const screenshot = `screenshot-${file.tempFilePath}.png`
         ffmpeg({ source: inStream })
             .on('end', async () => {
                 console.log('Done')
                 const result = await uploadFile(screenshot)
-                deleteFile(file.name);
+                deleteFile(filename);
                 deleteFile(file.tempFilePath);
-                deleteFile(`screenshot${file.name}.png`);
+                deleteFile(screenshot);
                 console.log(result)
                 return resolve(result);
             })

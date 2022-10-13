@@ -4,9 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { CatsModule } from './cats/cats.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { VideoModule } from './video/video.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { join } from 'path';
     AuthModule,
     UsersModule,
     MongooseModule.forRoot('mongodb+srv://cristian18u:0630@cluster0.ytiw2gl.mongodb.net/tyerra?retryWrites=true&w=majority'),
-    CatsModule
+    VideoModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,12 +6,14 @@ import videoEdit from './ffmpeg';
 import captureImage from './ffmpegimage';
 import { UserDto } from './users/dto/user.dto';
 import { UsersService } from './users/users.service';
+import { CreateVideoDo } from './video/do/create-video.do';
+import { VideoService } from './video/video.service';
 const uploadFile = require('./s3.js')
 
 
 @Controller()
 export class AppController {
-  constructor(private authService: AuthService, private userService: UsersService) { }
+  constructor(private authService: AuthService, private userService: UsersService, private videoService: VideoService) { }
 
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
@@ -41,17 +43,27 @@ export class AppController {
     try {
       const result = await uploadFile(req.files.file)
       console.log('result', result)
-      //req.files.file
       return result;
     } catch (error) {
       console.log(error)
     }
   }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/video')
   async videoEdit(@Request() req) {
     console.log(req.files)
+    const video = new CreateVideoDo()
     try {
-      if (req.files) return await videoEdit(req.files.file)
+      if (req.files) {
+        video.title = req.files.file.name
+        const result = await videoEdit(req.files.file)
+        video.url = result.video.Location
+        video.imgUrl = result.image.Location;
+        video.date = new Date();
+        this.videoService.create(video);
+        return result;
+      }
       else throw 'not file send'
     } catch (error) {
       return error
